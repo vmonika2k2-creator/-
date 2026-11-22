@@ -3,6 +3,8 @@ from full_house_data import page_data
 from kitchen_data import page_data as kitchen_page_data
 from sofa_data import page_data as sofa_page_data
 from bathroom_data import page_data as bathroom_page_data
+from premium_painting_data import page_data as premium_painting_page_data
+from painting_services_data import page_data as painting_services_page_data
 
 app = Flask(__name__, template_folder="template")
 
@@ -230,6 +232,14 @@ html_code = """
 
         function pickPaintingService(name) {
             closeModals();
+            if (name === 'Premium Painting') {
+                window.location.href = '/premium-painting';
+                return;
+            }
+            if (name === 'Painting Services') {
+                window.location.href = '/painting-services';
+                return;
+            }
             openBookingModal(name);
         }
 
@@ -351,6 +361,14 @@ def sofa_cleaning_data():
 @app.route('/bathroom-cleaning')
 def bathroom_cleaning():
     return render_template('bathroom_cleaning.html')
+
+@app.route('/premium-painting')
+def premium_painting():
+    return render_template('premium_painting.html', **premium_painting_page_data())
+
+@app.route('/painting-services')
+def painting_services_page():
+    return render_template('painting_services.html', **painting_services_page_data())
 
 @app.route('/api/bathroom-cleaning')
 def bathroom_cleaning_data():
