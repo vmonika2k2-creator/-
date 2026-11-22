@@ -17,6 +17,12 @@ cleaning_services = [
     {"id": "bathroom", "name": "Bathroom Cleaning Services", "icon": "🚿", "desc": "Tiles, fittings, toilet and drain deep cleaning"},
 ]
 
+# The painting options shown in the Painting popup
+painting_services = [
+    {"id": "premium-painting", "name": "Premium Painting", "icon": "✨", "desc": "Premium-quality paints and a refined finish for your home"},
+    {"id": "painting-services", "name": "Painting Services", "icon": "🖌️", "desc": "Professional painting service for your home"},
+]
+
 html_code = """
 <!DOCTYPE html>
 <html lang="en">
@@ -93,7 +99,7 @@ html_code = """
             <div class="services-grid" id="servicesGrid">
                 <div class="service-item" onclick="openCleaningPopup()"><span class="badge">Upto 60% Off*</span><div class="icon-circle">🧹</div><p>Home Cleaning</p></div>
                 <div class="service-item" onclick="openBookingModal('Packers & Movers')"><span class="badge">Lowest Quote*</span><div class="icon-circle">🚚</div><p>Packers & Movers</p></div>
-                <div class="service-item" onclick="openBookingModal('Home Painting')"><span class="badge">Flat 15% Off</span><div class="icon-circle">🖌️</div><p>Painting</p></div>
+                <div class="service-item" onclick="openPaintingPopup()"><span class="badge">Flat 15% Off</span><div class="icon-circle">🖌️</div><p>Painting</p></div>
                 <div class="service-item" onclick="openBookingModal('Sales Agreement')"><br><div class="icon-circle">📄</div><p>Sales Agreement</p></div>
                 <div class="service-item" onclick="openBookingModal('Rental Agreement')"><span class="badge">Flat 30% Off*</span><div class="icon-circle">📝</div><p>Rental Agreement</p></div>
                 <div class="service-item" onclick="openBookingModal('Electrician, Plumber & Carpenter')"><br><div class="icon-circle">🔧</div><p>Electrician & Plumber</p></div>
@@ -127,6 +133,18 @@ html_code = """
             </div>
             <p class="text-sm text-gray-500 mb-4">Choose a service to book</p>
             <div id="cleaningList" class="grid grid-cols-2 gap-3"></div>
+        </div>
+    </div>
+
+    <!-- Painting Popup (2 services) -->
+    <div id="paintingModal" class="modal">
+        <div class="bg-white rounded-2xl p-6 w-[480px] max-w-[92vw] shadow-2xl">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-bold text-gray-900" style="margin:0;color:#111">Painting Services</h3>
+                <button class="text-2xl leading-none border-0 bg-transparent" onclick="closeModals()">✕</button>
+            </div>
+            <p class="text-sm text-gray-500 mb-4">Choose a painting service</p>
+            <div id="paintingList" class="grid grid-cols-2 gap-3"></div>
         </div>
     </div>
 
@@ -194,6 +212,27 @@ html_code = """
             document.getElementById('cleaningModal').style.display = 'flex';
         }
 
+        // Painting popup: loads the two painting options from Python
+        async function openPaintingPopup() {
+            const list = document.getElementById('paintingList');
+            const res = await fetch('/api/painting-services');
+            const services = await res.json();
+            list.innerHTML = services.map(s =>
+                `<div class="cursor-pointer rounded-xl border border-gray-200 p-4 text-center hover:border-teal-600 hover:bg-teal-50 transition"
+                      onclick="pickPaintingService('${s.name}')">
+                    <div class="text-3xl mb-2">${s.icon}</div>
+                    <div class="font-semibold text-gray-900 text-sm">${s.name}</div>
+                    <div class="text-xs text-gray-500 mt-1">${s.desc}</div>
+                </div>`
+            ).join('');
+            document.getElementById('paintingModal').style.display = 'flex';
+        }
+
+        function pickPaintingService(name) {
+            closeModals();
+            openBookingModal(name);
+        }
+
         function pickCleaningService(name) {
             closeModals();
             if (name.startsWith('Full House')) {
@@ -221,6 +260,7 @@ html_code = """
 
         function closeModals() {
             document.getElementById('cleaningModal').style.display = 'none';
+            document.getElementById('paintingModal').style.display = 'none';
             document.getElementById('bookingModal').style.display = 'none';
             document.getElementById('myBookingsModal').style.display = 'none';
         }
@@ -279,6 +319,10 @@ def home():
 @app.route('/api/cleaning-services')
 def get_cleaning_services():
     return jsonify(cleaning_services)
+
+@app.route('/api/painting-services')
+def get_painting_services():
+    return jsonify(painting_services)
 
 @app.route('/full-house-cleaning')
 def full_house_cleaning():
