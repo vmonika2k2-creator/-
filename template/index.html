@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NoBroker Home Services Clone</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <!-- Navbar -->
+    <header class="navbar">
+        <div class="nav-left">
+            <span class="logo">🚫 <strong>NOBROKER</strong> <span class="sub-logo">Home Services</span></span>
+        </div>
+        <div class="nav-right">
+            <select class="city-select">
+                <option>Pune</option>
+                <option>Bangalore</option>
+                <option>Hyderabad</option>
+                <option>Mumbai</option>
+            </select>
+            <a href="#">📋 My Bookings</a>
+            <a href="#">Sign Up</a>
+            <a href="#">Log In</a>
+            <a href="#">☰ Menu</a>
+        </div>
+    </header>
+
+    <!-- Search Bar -->
+    <section class="search-section">
+        <div class="search-box">
+            <span>🔍</span>
+            <input type="text" placeholder="Search Bathroom Cleaning, Painting, etc...">
+        </div>
+    </section>
+
+    <!-- Main Hero Grid -->
+    <main class="container">
+        <div class="hero-grid">
+            <!-- Left: Service Icons -->
+            <div class="services-grid">
+                {% for service in services %}
+                <div class="service-card">
+                    {% if service.tag %}
+                        <span class="badge">{{ service.tag }}</span>
+                    {% else %}
+                        <span class="badge-empty"></span>
+                    {% endif %}
+                    <div class="icon-circle">{{ service.icon }}</div>
+                    <p>{{ service.name }}</p>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Right: Featured Promo Banner -->
+            <div class="promo-banner">
+                <div class="promo-overlay">
+                    <span>Cleaning Services</span>
+                    <button class="btn-teal">Book</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Offers Section -->
+        <section class="offers-section">
+            <h2>Offers for you</h2>
+            <div class="offers-grid">
+                {% for offer in offers %}
+                <div class="offer-card {{ offer.theme }}">
+                    <small>{{ offer.badge }}</small>
+                    <h3>{{ offer.title }}</h3>
+                    <button>{{ offer.btn }}</button>
+                </div>
+                {% endfor %}
+            </div>
+        </section>
+    </main>
+</body>
+</html>
