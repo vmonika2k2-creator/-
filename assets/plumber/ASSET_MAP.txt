@@ -1,0 +1,17 @@
+Plumber screen assets
+=====================
+
+The `figma` folder contains the locally downloaded image and SVG files used by
+the Plumber service screen. Filenames are the original Figma asset UUIDs. They
+are served by Flask from `/assets/plumber/figma/<filename>` so page rendering
+does not depend on temporary Figma download links.
+
+Primary visuals used by the screen:
+- 90fc69de-b7c8-44f7-aa9c-0b3dca563ad6.png — plumber hero photo
+- 7296da62-41a7-4bea-baa6-152593c03b14.png — VIP professional photo
+- 310cb043-b56f-4adb-84ad-47d690bbb0ff.png — VIP card background
+- 667316f1-4043-44f6-b8c5-c39152496a35.png — hero decorative background
+- Category banners and service thumbnails are referenced in `plumber_data.py`.
+
+The image content is from the supplied NoBroker Plumber Figma design. SVG files
+are preserved alongside the PNG service photography and illustrations.

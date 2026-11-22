@@ -7,6 +7,7 @@ from premium_painting_data import page_data as premium_painting_page_data
 from painting_services_data import page_data as painting_services_page_data
 from electrician_data import page_data as electrician_page_data
 from carpenter_data import page_data as carpenter_page_data
+from plumber_data import page_data as plumber_page_data
 
 app = Flask(__name__, template_folder="template")
 
@@ -277,6 +278,10 @@ html_code = """
                 window.location.href = '/carpenter';
                 return;
             }
+            if (name === 'Plumber') {
+                window.location.href = '/plumber';
+                return;
+            }
             openBookingModal(name);
         }
 
@@ -432,6 +437,10 @@ def electrician_page():
 @app.route('/carpenter')
 def carpenter_page():
     return render_template('carpenter.html', **carpenter_page_data())
+
+@app.route('/plumber')
+def plumber_page():
+    return render_template('plumber.html', **plumber_page_data())
 
 @app.route('/api/bathroom-cleaning')
 def bathroom_cleaning_data():
