@@ -1,6 +1,7 @@
-from flask import Flask, request, jsonify, render_template
+from flask import Flask, request, jsonify, render_template, send_from_directory
 from full_house_data import page_data
 from kitchen_data import page_data as kitchen_page_data
+from sofa_data import page_data as sofa_page_data
 
 app = Flask(__name__, template_folder="template")
 
@@ -198,6 +199,10 @@ html_code = """
                 window.location.href = '/full-house-cleaning';
                 return;
             }
+            if (name.startsWith('Sofa')) {
+                window.location.href = '/sofa-cleaning';
+                return;
+            }
             if (name.startsWith('Kitchen')) {
                 window.location.href = '/kitchen-cleaning';
                 return;
@@ -285,6 +290,18 @@ def kitchen_cleaning():
 @app.route('/api/kitchen-cleaning')
 def kitchen_cleaning_data():
     return jsonify(kitchen_page_data())
+
+@app.route('/sofa-cleaning')
+def sofa_cleaning():
+    return render_template('sofa_cleaning.html')
+
+@app.route('/api/sofa-cleaning')
+def sofa_cleaning_data():
+    return jsonify(sofa_page_data())
+
+@app.route('/assets/<path:filename>')
+def assets(filename):
+    return send_from_directory('assets', filename)
 
 @app.route('/book', methods=['POST'])
 def book_service():
