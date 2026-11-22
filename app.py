@@ -1,6 +1,7 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, render_template
+from full_house_data import page_data
 
-app = Flask(__name__)
+app = Flask(__name__, template_folder="template")
 
 # Temporary in-memory storage for bookings
 bookings_list = []
@@ -192,6 +193,10 @@ html_code = """
 
         function pickCleaningService(name) {
             closeModals();
+            if (name.startsWith('Full House')) {
+                window.location.href = '/full-house-cleaning';
+                return;
+            }
             openBookingModal(name);
         }
 
@@ -260,9 +265,19 @@ def home():
 def get_cleaning_services():
     return jsonify(cleaning_services)
 
+@app.route('/full-house-cleaning')
+def full_house_cleaning():
+    return render_template('full_house_cleaning.html')
+
+@app.route('/api/full-house-cleaning')
+def full_house_cleaning_data():
+    return jsonify(page_data())
+
 @app.route('/book', methods=['POST'])
 def book_service():
-    data = request.json
+    data = request.get_json(silent=True) or {}
+    if not data.get('service') or not data.get('name') or not data.get('phone'):
+        return jsonify({"status": "error", "message": "Missing details"}), 400
     bookings_list.append(data)
     return jsonify({"status": "success", "total": len(bookings_list)})
 
