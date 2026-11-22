@@ -25,6 +25,13 @@ painting_services = [
     {"id": "painting-services", "name": "Painting Services", "icon": "🖌️", "desc": "Professional painting service for your home"},
 ]
 
+# The trade options shown in the Electrician & Plumber popup
+trade_services = [
+    {"id": "electrician", "name": "Electrician", "icon": "⚡", "desc": "Repairs, switches, wiring and electrical installation"},
+    {"id": "plumber", "name": "Plumber", "icon": "🔧", "desc": "Tap, pipe, drain and bathroom plumbing repairs"},
+    {"id": "carpenter", "name": "Carpenter", "icon": "🪚", "desc": "Furniture assembly, fittings and woodwork repairs"},
+]
+
 html_code = """
 <!DOCTYPE html>
 <html lang="en">
@@ -104,7 +111,7 @@ html_code = """
                 <div class="service-item" onclick="openPaintingPopup()"><span class="badge">Flat 15% Off</span><div class="icon-circle">🖌️</div><p>Painting</p></div>
                 <div class="service-item" onclick="openBookingModal('Sales Agreement')"><br><div class="icon-circle">📄</div><p>Sales Agreement</p></div>
                 <div class="service-item" onclick="openBookingModal('Rental Agreement')"><span class="badge">Flat 30% Off*</span><div class="icon-circle">📝</div><p>Rental Agreement</p></div>
-                <div class="service-item" onclick="openBookingModal('Electrician, Plumber & Carpenter')"><br><div class="icon-circle">🔧</div><p>Electrician & Plumber</p></div>
+                <div class="service-item" onclick="openTradesPopup()"><br><div class="icon-circle">🔧</div><p>Electrician & Plumber</p></div>
                 <div class="service-item" onclick="openBookingModal('Interior & Renovation')"><br><div class="icon-circle">🛋️</div><p>Interior & Renovation</p></div>
                 <div class="service-item" onclick="openBookingModal('AC & Appliance Repair')"><span class="badge">Upto 30% Off*</span><div class="icon-circle">❄️</div><p>AC & Appliance Repair</p></div>
             </div>
@@ -147,6 +154,18 @@ html_code = """
             </div>
             <p class="text-sm text-gray-500 mb-4">Choose a painting service</p>
             <div id="paintingList" class="grid grid-cols-2 gap-3"></div>
+        </div>
+    </div>
+
+    <!-- Electrician & Plumber popup (three services) -->
+    <div id="tradesModal" class="modal">
+        <div class="bg-white rounded-2xl p-6 w-[480px] max-w-[92vw] shadow-2xl">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-bold text-gray-900" style="margin:0;color:#111">Electrician, Plumber &amp; Carpenter</h3>
+                <button class="text-2xl leading-none border-0 bg-transparent" onclick="closeModals()" aria-label="Close">×</button>
+            </div>
+            <p class="text-sm text-gray-500 mb-4">Choose a home repair service</p>
+            <div id="tradesList" class="grid grid-cols-2 gap-3"></div>
         </div>
     </div>
 
@@ -230,6 +249,27 @@ html_code = """
             document.getElementById('paintingModal').style.display = 'flex';
         }
 
+        // Open the available electrician, plumber and carpenter choices.
+        async function openTradesPopup() {
+            const list = document.getElementById('tradesList');
+            const response = await fetch('/api/trade-services');
+            const services = await response.json();
+            list.innerHTML = services.map(service =>
+                `<button type="button" class="cursor-pointer rounded-xl border border-gray-200 p-4 text-center hover:border-teal-600 hover:bg-teal-50 transition"
+                         onclick="pickTradeService('${service.name}')">
+                    <span class="text-3xl mb-2 block" aria-hidden="true">${service.icon}</span>
+                    <span class="font-semibold text-gray-900 text-sm block">${service.name}</span>
+                    <span class="text-xs text-gray-500 mt-1 block">${service.desc}</span>
+                </button>`
+            ).join('');
+            document.getElementById('tradesModal').style.display = 'flex';
+        }
+
+        function pickTradeService(name) {
+            closeModals();
+            openBookingModal(name);
+        }
+
         function pickPaintingService(name) {
             closeModals();
             if (name === 'Premium Painting') {
@@ -271,6 +311,7 @@ html_code = """
         function closeModals() {
             document.getElementById('cleaningModal').style.display = 'none';
             document.getElementById('paintingModal').style.display = 'none';
+            document.getElementById('tradesModal').style.display = 'none';
             document.getElementById('bookingModal').style.display = 'none';
             document.getElementById('myBookingsModal').style.display = 'none';
         }
@@ -333,6 +374,10 @@ def get_cleaning_services():
 @app.route('/api/painting-services')
 def get_painting_services():
     return jsonify(painting_services)
+
+@app.route('/api/trade-services')
+def get_trade_services():
+    return jsonify(trade_services)
 
 @app.route('/full-house-cleaning')
 def full_house_cleaning():
