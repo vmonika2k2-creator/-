@@ -5,12 +5,23 @@ app = Flask(__name__)
 # Temporary in-memory storage for bookings
 bookings_list = []
 
+# The four services shown in the Home Cleaning popup
+cleaning_services = [
+    {"id": "full-house", "name": "Full House Cleaning Services", "icon": "🏠", "desc": "Deep clean of every room, floor to ceiling"},
+    {"id": "kitchen", "name": "Kitchen Services", "icon": "🍳", "desc": "Degreasing of tiles, slab, stove, chimney and cabinets"},
+    {"id": "sofa", "name": "Sofa Cleaning Services", "icon": "🛋️", "desc": "Vacuuming and shampooing for sofas, cushions and recliners"},
+    {"id": "bathroom", "name": "Bathroom Cleaning Services", "icon": "🚿", "desc": "Tiles, fittings, toilet and drain deep cleaning"},
+]
+
 html_code = """
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <title>NoBroker Home Services Clone</title>
+    <!-- Tailwind CSS (preflight off so the existing styles stay the same) -->
+    <script>tailwind = { config: { corePlugins: { preflight: false } } };</script>
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: Arial, sans-serif; }
         body { background-color: #f4f6f9; color: #333; }
@@ -76,7 +87,7 @@ html_code = """
     <div class="container">
         <div class="hero-grid">
             <div class="services-grid" id="servicesGrid">
-                <div class="service-item" onclick="openBookingModal('Home Cleaning')"><span class="badge">Upto 60% Off*</span><div class="icon-circle">🧹</div><p>Home Cleaning</p></div>
+                <div class="service-item" onclick="openCleaningPopup()"><span class="badge">Upto 60% Off*</span><div class="icon-circle">🧹</div><p>Home Cleaning</p></div>
                 <div class="service-item" onclick="openBookingModal('Packers & Movers')"><span class="badge">Lowest Quote*</span><div class="icon-circle">🚚</div><p>Packers & Movers</p></div>
                 <div class="service-item" onclick="openBookingModal('Home Painting')"><span class="badge">Flat 15% Off</span><div class="icon-circle">🖌️</div><p>Painting</p></div>
                 <div class="service-item" onclick="openBookingModal('Sales Agreement')"><br><div class="icon-circle">📄</div><p>Sales Agreement</p></div>
@@ -100,6 +111,18 @@ html_code = """
                 <div class="offer-card light-green"><small>Free Tenant Verification</small><h3>Upto 30% off on Rental agreement</h3><button onclick="openBookingModal('Rental Agreement (30% Off)')">Create Agreement</button></div>
                 <div class="offer-card light-blue"><small>Festive Sale</small><h3>Flat 15% off on Home Painting</h3><button onclick="openBookingModal('Home Painting (15% Off)')">Explore Now</button></div>
             </div>
+        </div>
+    </div>
+
+    <!-- Home Cleaning Popup (4 services) -->
+    <div id="cleaningModal" class="modal">
+        <div class="bg-white rounded-2xl p-6 w-[480px] max-w-[92vw] shadow-2xl">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-bold text-gray-900" style="margin:0;color:#111">Home Cleaning Services</h3>
+                <button class="text-2xl leading-none border-0 bg-transparent" onclick="closeModals()">✕</button>
+            </div>
+            <p class="text-sm text-gray-500 mb-4">Choose a service to book</p>
+            <div id="cleaningList" class="grid grid-cols-2 gap-3"></div>
         </div>
     </div>
 
@@ -151,11 +174,33 @@ html_code = """
             document.getElementById('bookingModal').style.display = 'flex';
         }
 
+        // Home Cleaning popup: loads the 4 services from Python
+        async function openCleaningPopup() {
+            const list = document.getElementById('cleaningList');
+            const res = await fetch('/api/cleaning-services');
+            const services = await res.json();
+            list.innerHTML = services.map(s =>
+                `<div class="cursor-pointer rounded-xl border border-gray-200 p-4 text-center hover:border-teal-600 hover:bg-teal-50 transition"
+                      onclick="pickCleaningService('${s.name}')">
+                    <div class="text-3xl mb-2">${s.icon}</div>
+                    <div class="font-semibold text-gray-900 text-sm">${s.name}</div>
+                    <div class="text-xs text-gray-500 mt-1">${s.desc}</div>
+                </div>`
+            ).join('');
+            document.getElementById('cleaningModal').style.display = 'flex';
+        }
+
+        function pickCleaningService(name) {
+            closeModals();
+            openBookingModal(name);
+        }
+
         function openAuthModal(type) {
             alert(type + " feature triggered! Enter details during booking.");
         }
 
         function closeModals() {
+            document.getElementById('cleaningModal').style.display = 'none';
             document.getElementById('bookingModal').style.display = 'none';
             document.getElementById('myBookingsModal').style.display = 'none';
         }
@@ -210,6 +255,10 @@ html_code = """
 @app.route('/')
 def home():
     return html_code
+
+@app.route('/api/cleaning-services')
+def get_cleaning_services():
+    return jsonify(cleaning_services)
 
 @app.route('/book', methods=['POST'])
 def book_service():
