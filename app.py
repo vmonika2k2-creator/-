@@ -1,5 +1,6 @@
 from flask import Flask, request, jsonify, render_template
 from full_house_data import page_data
+from kitchen_data import page_data as kitchen_page_data
 
 app = Flask(__name__, template_folder="template")
 
@@ -197,6 +198,10 @@ html_code = """
                 window.location.href = '/full-house-cleaning';
                 return;
             }
+            if (name.startsWith('Kitchen')) {
+                window.location.href = '/kitchen-cleaning';
+                return;
+            }
             openBookingModal(name);
         }
 
@@ -272,6 +277,14 @@ def full_house_cleaning():
 @app.route('/api/full-house-cleaning')
 def full_house_cleaning_data():
     return jsonify(page_data())
+
+@app.route('/kitchen-cleaning')
+def kitchen_cleaning():
+    return render_template('kitchen_cleaning.html')
+
+@app.route('/api/kitchen-cleaning')
+def kitchen_cleaning_data():
+    return jsonify(kitchen_page_data())
 
 @app.route('/book', methods=['POST'])
 def book_service():
