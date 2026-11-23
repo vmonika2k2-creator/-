@@ -1,0 +1,2 @@
+.appliance-hero{background:#f2f5fc}.appliance-hero .hero-content{min-height:280px}.appliance-icon{font-size:27px;line-height:1.2}.appliance-hero .jump-links a{font-size:10px}.appliance-hero .promo span{color:#e6f4f2}.appliance-hero .hero-photo{object-position:center}.appliance-hero .category-banner{background:#e6eee9}
+@media(max-width:750px){.appliance-hero .hero-copy{min-height:225px}.appliance-hero .jump-links{grid-template-columns:repeat(4,minmax(62px,1fr));overflow-x:auto}.appliance-hero .jump-links a{min-width:62px}}

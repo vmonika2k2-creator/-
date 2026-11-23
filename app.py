@@ -35,6 +35,12 @@ trade_services = [
     {"id": "carpenter", "name": "Carpenter", "icon": "🪚", "desc": "Furniture assembly, fittings and woodwork repairs"},
 ]
 
+# The two choices shown in the AC & Appliance Repair popup
+appliance_services = [
+    {"id": "ac-services", "name": "AC Services", "icon": "❄️", "desc": "AC repair, servicing, installation and uninstallation"},
+    {"id": "appliance-services", "name": "Appliance Services", "icon": "🔌", "desc": "Repair and installation for common home appliances"},
+]
+
 html_code = """
 <!DOCTYPE html>
 <html lang="en">
@@ -45,7 +51,7 @@ html_code = """
     <script>tailwind = { config: { corePlugins: { preflight: false } } };</script>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: Arial, sans-serif; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: Inter, Arial, sans-serif; }
         body { background-color: #f4f6f9; color: #333; }
         .navbar { display: flex; justify-content: space-between; align-items: center; background: #fff; padding: 15px 40px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
         .logo strong { color: #fd3752; font-size: 1.2rem; }
@@ -74,6 +80,167 @@ html_code = """
         .light-blue { background: #eaf4fc; color: #164366; }
         button { align-self: flex-start; padding: 8px 16px; border-radius: 20px; border: 1px solid #ccc; background: #fff; font-weight: bold; cursor: pointer; }
         button:hover { opacity: 0.9; }
+
+        /* Floating home-services badge */
+        .help-badge {
+            position: fixed;
+            right: clamp(18px, 3vw, 42px);
+            bottom: clamp(18px, 3vw, 36px);
+            width: 154px;
+            aspect-ratio: 1;
+            z-index: 30;
+            display: grid;
+            place-items: center;
+            border-radius: 50%;
+            background: #0f5d42;
+            box-shadow: 0 14px 30px rgba(14, 64, 46, .28);
+            isolation: isolate;
+            text-decoration: none;
+            border: 0;
+            padding: 0;
+            cursor: pointer;
+            transition: transform .2s ease, box-shadow .2s ease;
+        }
+        .help-badge:hover, .help-badge:focus-visible {
+            transform: translateY(-4px) scale(1.03);
+            box-shadow: 0 18px 35px rgba(14, 64, 46, .36);
+            outline: none;
+        }
+        .help-badge::before {
+            content: "";
+            position: absolute;
+            inset: 23px;
+            border-radius: 50%;
+            background: linear-gradient(145deg, #4d9a69, #347f5b);
+            z-index: -1;
+        }
+        .help-badge__ring {
+            position: absolute;
+            inset: -2px;
+            width: calc(100% + 4px);
+            height: calc(100% + 4px);
+            animation: help-badge-spin 14s linear infinite;
+            transform-origin: center;
+            pointer-events: none;
+        }
+        .help-badge__ring text {
+            fill: #dce8d7;
+            font: 700 13px Arial, sans-serif;
+            letter-spacing: 1.4px;
+        }
+        .help-badge__icon {
+            width: 64px;
+            height: 64px;
+            color: #f1ccd9;
+        }
+        @keyframes help-badge-spin {
+            to { transform: rotate(360deg); }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .help-badge__ring { animation-duration: 30s; }
+        }
+        @media (max-width: 600px) {
+            .help-badge { width: 126px; right: 14px; bottom: 14px; }
+            .help-badge__icon { width: 54px; height: 54px; }
+            .help-badge__ring text { font-size: 12px; letter-spacing: 1px; }
+        }
+
+        /* Screen 2: role selection */
+        .role-modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 1100;
+            place-items: center;
+            padding: 24px;
+            background: rgba(26, 26, 26, .18);
+        }
+        .role-modal.is-open { display: grid; }
+        .role-modal__panel {
+            position: relative;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            width: min(920px, 100%);
+            min-height: 560px;
+            overflow: hidden;
+            border-radius: 24px;
+            background: #fff;
+            box-shadow: 0 24px 70px rgba(35, 27, 38, .22);
+        }
+        .role-option {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 34px;
+            padding: 54px 56px;
+            text-align: center;
+        }
+        .role-option--owner { background: #fff3ea; color: #d4511b; }
+        .role-option--tenant { background: #faeaff; color: #980cc2; }
+        .role-option__image {
+            width: min(300px, 75%);
+            aspect-ratio: 1;
+            border-radius: 28px;
+            background: rgba(255,255,255,.48);
+            display: grid;
+            place-items: center;
+            font-size: clamp(76px, 10vw, 132px);
+            box-shadow: inset 0 0 0 1px rgba(255,255,255,.55);
+        }
+        .role-option h2 {
+            max-width: 350px;
+            font-family: 'Trebuchet MS', Arial, sans-serif;
+            font-size: clamp(24px, 3vw, 36px);
+            line-height: 1.08;
+            font-weight: 500;
+        }
+        .role-option button {
+            color: #fff;
+            border: 0;
+            padding: 13px 25px;
+            border-radius: 26px;
+            font-size: 16px;
+        }
+        .role-option--owner button { background: #c2410c; }
+        .role-option--tenant button { background: #980cc2; }
+        .role-modal__close {
+            position: absolute;
+            top: 14px;
+            right: 16px;
+            z-index: 1;
+            width: 38px;
+            height: 38px;
+            padding: 0;
+            border: 0;
+            border-radius: 50%;
+            background: rgba(255,255,255,.82);
+            color: #444;
+            font-size: 24px;
+            line-height: 1;
+        }
+        .role-toast {
+            position: fixed;
+            left: 50%;
+            bottom: 28px;
+            z-index: 1200;
+            transform: translate(-50%, 20px);
+            padding: 12px 18px;
+            border-radius: 24px;
+            background: #1a1a1a;
+            color: #fff;
+            font-size: 14px;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity .2s ease, transform .2s ease;
+        }
+        .role-toast.is-visible { opacity: 1; transform: translate(-50%, 0); }
+        @media (max-width: 680px) {
+            .role-modal__panel { grid-template-columns: 1fr; }
+            .role-option { min-height: 390px; padding: 36px 24px; gap: 14px; }
+            .role-option__image { width: 150px; font-size: 72px; }
+            .role-option h2 { font-size: 25px; }
+        }
 
         /* Popup Modal Styles */
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); justify-content: center; align-items: center; z-index: 1000; }
@@ -116,7 +283,7 @@ html_code = """
                 <div class="service-item" onclick="openBookingModal('Rental Agreement')"><span class="badge">Flat 30% Off*</span><div class="icon-circle">📝</div><p>Rental Agreement</p></div>
                 <div class="service-item" onclick="openTradesPopup()"><br><div class="icon-circle">🔧</div><p>Electrician & Plumber</p></div>
                 <div class="service-item" onclick="openBookingModal('Interior & Renovation')"><br><div class="icon-circle">🛋️</div><p>Interior & Renovation</p></div>
-                <div class="service-item" onclick="openBookingModal('AC & Appliance Repair')"><span class="badge">Upto 30% Off*</span><div class="icon-circle">❄️</div><p>AC & Appliance Repair</p></div>
+                <div class="service-item" onclick="openAppliancePopup()"><span class="badge">Upto 30% Off*</span><div class="icon-circle">❄️</div><p>AC & Appliance Repair</p></div>
             </div>
             <div class="promo-banner">
                 <div class="promo-overlay">
@@ -172,6 +339,18 @@ html_code = """
         </div>
     </div>
 
+    <!-- AC & Appliance Repair popup (two service groups) -->
+    <div id="applianceModal" class="modal">
+        <div class="bg-white rounded-2xl p-6 w-[480px] max-w-[92vw] shadow-2xl">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-bold text-gray-900" style="margin:0;color:#111">AC &amp; Appliance Repair</h3>
+                <button class="text-2xl leading-none border-0 bg-transparent" onclick="closeModals()" aria-label="Close">×</button>
+            </div>
+            <p class="text-sm text-gray-500 mb-4">Choose the type of service you need</p>
+            <div id="applianceList" class="grid grid-cols-2 gap-3"></div>
+        </div>
+    </div>
+
     <!-- Booking Modal -->
     <div id="bookingModal" class="modal">
         <div class="modal-content">
@@ -200,8 +379,61 @@ html_code = """
         </div>
     </div>
 
+    <!-- Screen 2 role selection -->
+    <div id="roleModal" class="role-modal" role="dialog" aria-modal="true" aria-labelledby="roleModalTitle">
+        <div class="role-modal__panel">
+            <button class="role-modal__close" type="button" onclick="closeModals()" aria-label="Close role selection">×</button>
+            <section class="role-option role-option--owner">
+                <div class="role-option__image" aria-hidden="true">🏠</div>
+                <h2 id="roleModalTitle">Need help with your home? Let us take care of it</h2>
+                <button type="button" onclick="chooseRole('Owner')">I am the Owner</button>
+            </section>
+            <section class="role-option role-option--tenant">
+                <div class="role-option__image" aria-hidden="true">🛠️</div>
+                <h2>Need assistance with anything? Let us know how we can help.</h2>
+                <button type="button" onclick="chooseRole('Tenant')">I am the Tenant</button>
+            </section>
+        </div>
+    </div>
+    <div id="roleToast" class="role-toast" role="status" aria-live="polite"></div>
+
+    <!-- Floating help badge -->
+    <button class="help-badge" type="button" onclick="openRoleModal()" aria-label="Need help with home services? Choose your role">
+        <svg class="help-badge__ring" viewBox="0 0 160 160" aria-hidden="true">
+            <defs>
+                <path id="help-badge-circle" d="M 80,80 m -61,0 a 61,61 0 1,1 122,0 a 61,61 0 1,1 -122,0" />
+            </defs>
+            <text>
+                <textPath href="#help-badge-circle" startOffset="0%">NEED HELP WITH HOME SERVICES · WE ARE HERE FOR YOU · </textPath>
+            </text>
+        </svg>
+        <svg class="help-badge__icon" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M10 29 32 10l22 19" />
+            <path d="M16 27v25h32V27" />
+            <path d="M27 52h10" />
+            <path d="M32 26c-5 0-9 4-9 9 0 3 1 6 4 8v7h10v-7c3-2 4-5 4-8 0-5-4-9-9-9z" />
+            <path d="M27 43h10" />
+        </svg>
+    </button>
+
     <script>
         let selectedService = "";
+        let selectedRole = localStorage.getItem('homeServicesRole') || '';
+
+        function openRoleModal() {
+            document.getElementById('roleModal').classList.add('is-open');
+        }
+
+        function chooseRole(role) {
+            selectedRole = role;
+            localStorage.setItem('homeServicesRole', role);
+            closeModals();
+            const toast = document.getElementById('roleToast');
+            toast.textContent = role + ' mode selected. Choose a service to continue.';
+            toast.classList.add('is-visible');
+            window.setTimeout(() => toast.classList.remove('is-visible'), 3200);
+            document.getElementById('servicesGrid').scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
 
         // 1. Live Search Filter
         function filterServices() {
@@ -268,6 +500,35 @@ html_code = """
             document.getElementById('tradesModal').style.display = 'flex';
         }
 
+        // Show the two service groups for AC and home appliance repair.
+        async function openAppliancePopup() {
+            const list = document.getElementById('applianceList');
+            const response = await fetch('/api/appliance-services');
+            const services = await response.json();
+            list.innerHTML = services.map(service =>
+                `<button type="button" class="cursor-pointer rounded-xl border border-gray-200 p-4 text-center hover:border-teal-600 hover:bg-teal-50 transition"
+                         onclick="pickApplianceService('${service.name}')">
+                    <span class="text-3xl mb-2 block" aria-hidden="true">${service.icon}</span>
+                    <span class="font-semibold text-gray-900 text-sm block">${service.name}</span>
+                    <span class="text-xs text-gray-500 mt-1 block">${service.desc}</span>
+                </button>`
+            ).join('');
+            document.getElementById('applianceModal').style.display = 'flex';
+        }
+
+        function pickApplianceService(name) {
+            closeModals();
+            if (name === 'AC Services') {
+                window.location.href = '/ac';
+                return;
+            }
+            if (name === 'Appliance Services') {
+                window.location.href = '/appliances';
+                return;
+            }
+            openBookingModal(name);
+        }
+
         function pickTradeService(name) {
             closeModals();
             if (name === 'Electrician') {
@@ -327,8 +588,10 @@ html_code = """
             document.getElementById('cleaningModal').style.display = 'none';
             document.getElementById('paintingModal').style.display = 'none';
             document.getElementById('tradesModal').style.display = 'none';
+            document.getElementById('applianceModal').style.display = 'none';
             document.getElementById('bookingModal').style.display = 'none';
             document.getElementById('myBookingsModal').style.display = 'none';
+            document.getElementById('roleModal').classList.remove('is-open');
         }
 
         // 3. Send Booking Data to Python Backend
@@ -346,7 +609,7 @@ html_code = """
             const response = await fetch('/book', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ service: selectedService, name, phone, date, city })
+                body: JSON.stringify({ service: selectedService, name, phone, date, city, role: selectedRole })
             });
 
             const data = await response.json();
@@ -393,6 +656,20 @@ def get_painting_services():
 @app.route('/api/trade-services')
 def get_trade_services():
     return jsonify(trade_services)
+
+@app.route('/api/appliance-services')
+def get_appliance_services():
+    return jsonify(appliance_services)
+
+@app.route('/ac')
+def ac_services_page():
+    from ac_data import page_data as ac_page_data
+    return render_template('ac.html', **ac_page_data())
+
+@app.route('/appliances')
+def appliance_services_page():
+    from appliances_data import page_data as appliance_page_data
+    return render_template('appliances.html', **appliance_page_data())
 
 @app.route('/full-house-cleaning')
 def full_house_cleaning():

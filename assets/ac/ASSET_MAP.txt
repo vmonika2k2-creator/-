@@ -1,0 +1,19 @@
+NoBroker AC Repair Pune assets
+==============================
+
+The `figma` folder holds the images and SVGs downloaded from the requested AC
+Repair Pune Figma screen. UUID filenames are the original temporary Figma asset
+IDs; the application serves these files locally so it does not depend on
+expiring Figma URLs.
+
+Primary image mapping (all paths relative to `assets/`):
+- `ac/figma/c67dbe71-83d5-4746-bed8-0f1d346342d8.png` — hero AC service promotion photo
+- `ac/figma/5ac6523e-e3ef-4131-85bb-a3967e63f49b.png` — VIP membership banner graphic
+- `ac/figma/ea2f052a-1495-4c5c-8cd4-471c333d0afd.png` — AC maintenance banner
+- `ac/figma/b11ecf87-9e40-44ab-ba3b-4483c3418ade.png` — AC repair banner
+- `ac/figma/9e87c7e6-71ac-4110-9c8a-47a538c59a86.png` — installation banner
+- `ac/figma/bc9a52a1-e523-4174-b24a-b26b720732fb.png` — gas charging banner
+- Service card photos are mapped in `ac_data.py`.
+
+The remaining PNG and SVG exports are the service thumbnails, rating/category
+iconography and decorative vectors from the same Figma screen.
